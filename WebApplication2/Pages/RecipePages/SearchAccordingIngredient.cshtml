@@ -1,0 +1,64 @@
+@page
+@model WebApplication2.Pages.RecipePages.SearchAccordingIngredient
+
+@{
+    ViewData["Title"] = "- Search";
+    Layout = "Shared/_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Index</title>
+</head>
+<body>
+<form method="post">
+     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Ingredient[0].Name)
+            </th>
+            <th>
+
+            </th>
+            <th>
+
+            </th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @for (var i = 0; i < Model.Ingredient.Count; i++)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Ingredient[0].Name)
+                </td>
+                <td>
+                    <div class="form-group">
+                        <label asp-for="Ingredient[i].Count" class="control-label"></label>
+                        <input asp-for="Ingredient[i].Count" class="form-control"/>
+                        <span asp-validation-for="Ingredient[i].Count" class="text-danger"></span>
+                    </div>
+                </td>
+                <td>
+                    <input asp-for="Ingredient[i].Checked" type="checkbox">
+                </td>
+            </tr>
+        }
+        </tbody>
+
+    </table>
+    <div class="form-group">
+        <input type="submit" value="Search" class="btn btn-primary"/>
+    </div>
+</form>
+<div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+@page
+@model WebApplication2.Pages.IngrRecipe.DetailsModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Details</title>
+</head>
+<body>
+
+<div>
+    <h4>RecipeIngredient</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.RecipeIngredient.Count)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.RecipeIngredient.Count)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.RecipeIngredient.Recipe)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.RecipeIngredient.Recipe.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.RecipeIngredient.Ingredient)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.RecipeIngredient.Ingredient.Id)
+        </dd>
+    </dl>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+@page
+@model WebApplication2.Pages.IngrRecipe.IndexModel
+
+@{
+    Layout = "Shared/_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RecipeIngredient[0].Count)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RecipeIngredient[0].Recipe)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RecipeIngredient[0].Ingredient)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.RecipeIngredient) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Count)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Recipe.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ingredient.Id)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+</body>
+</html>
