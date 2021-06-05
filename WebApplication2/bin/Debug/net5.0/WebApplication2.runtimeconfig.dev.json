@@ -1,8 +1,0 @@
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "/home/simona/.dotnet/store/|arch|/|tfm|",
-      "/home/simona/.nuget/packages"
-    ]
-  }
-}
