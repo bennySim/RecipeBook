@@ -1,17 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Schema;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using WebApplication2;
 
 namespace WebApplication2.Pages.RecipePages
 {
@@ -47,10 +40,17 @@ namespace WebApplication2.Pages.RecipePages
 
             foreach (var ingredient in Ingredients)
             {
+                var tmpIngredient = new Ingredient() {Name = ingredient.Name, Unit = ingredient.Unit};
+                var inTable  = _context.Set<Ingredient>()
+                    .Where(i => i.Name == ingredient.Name && i.Unit == ingredient.Unit);
+                if (inTable.Count() != 0)
+                {
+                    tmpIngredient = inTable.First();
+                }
                 RecipeIngredient recipeIngredient = new RecipeIngredient()
                 {
                     Recipe = Recipe,
-                    Ingredient = new Ingredient() {Name = ingredient.Name, Unit = ingredient.Unit},
+                    Ingredient = tmpIngredient,
                     Count = ingredient.Count
                 };
                 _context.Set<RecipeIngredient>().Add(recipeIngredient);
