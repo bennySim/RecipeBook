@@ -17,9 +17,9 @@ namespace WebApplication2.Pages.RecipePages
 {
     public class CreateModel : PageModel
     {
-        private readonly WebApplication2.RecipesContext _context;
+        private readonly RecipesContext _context;
 
-        public CreateModel(WebApplication2.RecipesContext context)
+        public CreateModel(RecipesContext context)
         {
             _context = context;
         }
@@ -32,7 +32,7 @@ namespace WebApplication2.Pages.RecipePages
         [BindProperty] public Recipe Recipe { get; set; }
 
         [BindProperty] public IFormFile UploadFileName { get; set; }
-        [BindProperty] public List<Ingredient> Ingredients { get; set; } = new() {new Ingredient()};
+        [BindProperty] public List<IngredientWithCount> Ingredients { get; set; } = new() {new IngredientWithCount()};
         [BindProperty] public uint Count { get; set; }
 
         private string ValidationResult = null;
@@ -40,28 +40,6 @@ namespace WebApplication2.Pages.RecipePages
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-            // XmlReaderSettings settings = new XmlReaderSettings();
-            //settings.Schemas.Add("http://www.formatdata.com/recipeml", "recipeml.dtd");
-            /*//settings.ValidationEventHandler += new ValidationEventHandl
-            settings.ValidationType = ValidationType.DTD;
-            settings.DtdProcessing = DtdProcessing.Parse;
-           // XmlReader reader = XmlReader.Create(UploadFileName.Name, settings);
-            XmlDocument document = new XmlDocument();
-           // document.Load(reader);
-           // document.Validate(ValidationEventHandler);
-            var titles = document.GetElementsByTagName("title");
-            StringBuilder _builder = new StringBuilder();
-            /*while (reader.Read())
-            {
-            }#1#
-
-            if (_builder.ToString() == String.Empty)
-                Console.Write("DTD Validation completed successfully.");
-            else
-                Console.Write("DTD Validation Failed. <br>" + _builder.ToString());*/
-//            reader.Close();
-
-
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -72,8 +50,8 @@ namespace WebApplication2.Pages.RecipePages
                 RecipeIngredient recipeIngredient = new RecipeIngredient()
                 {
                     Recipe = Recipe,
-                    Ingredient = ingredient,
-                    Count = Count
+                    Ingredient = new Ingredient() {Name = ingredient.Name, Unit = ingredient.Unit},
+                    Count = ingredient.Count
                 };
                 _context.Set<RecipeIngredient>().Add(recipeIngredient);
             }
@@ -92,5 +70,12 @@ namespace WebApplication2.Pages.RecipePages
                 _ => ""
             };
         }
+    }
+
+    public class IngredientWithCount
+    {
+        public string Name { get; set; }
+        public uint Count { get; set; }
+        public string Unit { get; set; }
     }
 }
