@@ -17,21 +17,25 @@ namespace WebApplication2.Pages.RecipePages
             _context = context;
         }
         
-        public List<ChoosenIngredient> Ingredient { get;set; }
+        [BindProperty] public List<ChoosenIngredient> ChoosenIngredients { get;set; }
+        public List<Ingredient> Ingredient { get; set; }
 
         public async Task OnGet()
         {
-            var ingredients = _context.Set<Ingredient>()
-                .Select(i => new ChoosenIngredient(i.Name, 0, false));
-            Ingredient = await ingredients.ToListAsync();
+            Ingredient = await _context.Set<Ingredient>().ToListAsync();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPost()
         {
             
             return RedirectToPage("./Index");
         }
 
-        public record ChoosenIngredient(string Name, uint Count, bool Checked);
+        public class ChoosenIngredient
+        {
+            public int Id { get; set; }
+            public uint Count { get; set; }
+            public bool Checked { get; set; }
+        }
     }
 }

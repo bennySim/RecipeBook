@@ -15,7 +15,7 @@
 </head>
 <body>
 <form method="post">
-     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <table class="table">
         <thead>
         <tr>
@@ -23,7 +23,7 @@
                 @Html.DisplayNameFor(model => model.Ingredient[0].Name)
             </th>
             <th>
-
+                @Html.DisplayNameFor(model => model.ChoosenIngredients[0].Count)
             </th>
             <th>
 
@@ -37,16 +37,18 @@
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => Model.Ingredient[i].Name)
+                    <input hidden asp-for="ChoosenIngredients[i].Id" class="form-control" value="@Model.Ingredient[i].Id"/>
                 </td>
                 <td>
                     <div class="form-group">
-                        <label asp-for="Ingredient[i].Count" class="control-label"></label>
-                        <input asp-for="Ingredient[i].Count" class="form-control"/>
-                        <span asp-validation-for="Ingredient[i].Count" class="text-danger"></span>
+
+                        <input asp-for="ChoosenIngredients[i].Count" class="form-control"/>
+                        <span asp-validation-for="ChoosenIngredients[i].Count" class="text-danger"></span>
+                        @Model.Ingredient[i].Unit
                     </div>
                 </td>
                 <td>
-                    <input asp-for="Ingredient[i].Checked" type="checkbox">
+                    <input asp-for="ChoosenIngredients[i].Checked" class="form-control" type="checkbox">
                 </td>
             </tr>
         }
