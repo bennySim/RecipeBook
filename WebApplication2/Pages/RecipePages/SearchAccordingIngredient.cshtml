@@ -15,52 +15,52 @@
 </head>
 <body>
 <form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <table class="table">
-        <thead>
+    <table class="table" id="js">
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Ingredient[0].Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChoosenIngredients[0].Count)
-            </th>
-            <th>
+                <div class="form-group">
+                    <select name="ingredient0" id="ingredient0" asp-for="IngredientsInRecipe[0].IngredientId" class="form-control ingredient">
+                        <option value="">Select an ingredient</option>
+                        @for (var i = 0; i < Model.Ingredient.Count; i++)
+                        {
+                            <option value="@Model.Ingredient[i].Id">@Model.Ingredient[i].Name (@Model.Ingredient[i].Unit)</option>
+                        }
+                    </select>
 
+                </div>
             </th>
+            <th>
+                <div class="form-group">
+                    <input asp-for="IngredientsInRecipe[0].Count" class="form-control"/>
+                    <span asp-validation-for="IngredientsInRecipe[0].Count" class="text-danger"></span>
+                </div>
+            </th>
+            <th> @Html.DisplayNameFor(model => model.IngredientsInRecipe[0].Count)</th>
         </tr>
-        </thead>
-
-        <tbody>
-        @for (var i = 0; i < Model.Ingredient.Count; i++)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => Model.Ingredient[i].Name)
-                    <input hidden asp-for="ChoosenIngredients[i].Id" class="form-control" value="@Model.Ingredient[i].Id"/>
-                </td>
-                <td>
-                    <div class="form-group">
-
-                        <input asp-for="ChoosenIngredients[i].Count" class="form-control"/>
-                        <span asp-validation-for="ChoosenIngredients[i].Count" class="text-danger"></span>
-                        @Model.Ingredient[i].Unit
-                    </div>
-                </td>
-                <td>
-                    <input asp-for="ChoosenIngredients[i].Checked" class="form-control" type="checkbox">
-                </td>
-            </tr>
-        }
-        </tbody>
 
     </table>
-    <div class="form-group">
-        <input type="submit" value="Search" class="btn btn-primary"/>
-    </div>
+    <span class="form-group">
+        <input type="button" value="Add a field" class="add btn btn-primary" id="add"/> <input type="submit" value="Search" class="btn btn-primary"/>
+    </span>
 </form>
-<div>
-
-</div>
 </body>
 </html>
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#add').on('click', function () {
+                var i = $(".ingredient").length;
+                var start = $('<tr><th> <div class="form-group"><select name="ingredient'+i+'" id="ingredient'+i+'" class="form-control ingredient" data-val="true" data-val-required="The IngredientId field is required.">'+
+                '</select></div></th><th><div class="form-group">'+
+                           '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="IngredientsInRecipe_'+i+'__Count" name="IngredientsInRecipe['+i+'].Count" value="0">'+
+                           '<span class="text-danger field-validation-valid" data-valmsg-for="IngredientsInRecipe['+i+'].Count" data-valmsg-replace="true"></span>'+
+                           '</div> </th><th> Count</th></tr>');
+                
+                var options = $("#ingredient0").clone(true).children("option");
+                start.find("select").append(options);
+                $("#js").append(start);
+            });
+        });
+</script>
+}
