@@ -19,8 +19,8 @@
         <tr>
             <th>
                 <div class="form-group">
-                    <select name="ingredient0" id="ingredient0" asp-for="IngredientsInRecipe[0].IngredientId" class="form-control ingredient">
-                        <option value="">Select an ingredient</option>
+                    <select id="ingredient0" asp-for="IngredientsInRecipe[0].IngredientId" class="form-control ingredient">
+                        <option value="0">Select an ingredient</option>
                         @for (var i = 0; i < Model.Ingredient.Count; i++)
                         {
                             <option value="@Model.Ingredient[i].Id">@Model.Ingredient[i].Name (@Model.Ingredient[i].Unit)</option>
@@ -31,7 +31,7 @@
             </th>
             <th>
                 <div class="form-group">
-                    <input asp-for="IngredientsInRecipe[0].Count" class="form-control"/>
+                    <input asp-for="IngredientsInRecipe[0].Count" class="form-control" value="0"/>
                     <span asp-validation-for="IngredientsInRecipe[0].Count" class="text-danger"></span>
                 </div>
             </th>
@@ -43,6 +43,31 @@
         <input type="button" value="Add a field" class="add btn btn-primary" id="add"/> <input type="submit" value="Search" class="btn btn-primary"/>
     </span>
 </form>
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Recipe Name
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.Recipe)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
 </body>
 </html>
 
@@ -51,9 +76,9 @@
         $(function () {
             $('#add').on('click', function () {
                 var i = $(".ingredient").length;
-                var start = $('<tr><th> <div class="form-group"><select name="ingredient'+i+'" id="ingredient'+i+'" class="form-control ingredient" data-val="true" data-val-required="The IngredientId field is required.">'+
+                var start = $('<tr><th> <div class="form-group"><select name="IngredientsInRecipe['+i+'].IngredientId" id="ingredient'+i+'" class="form-control ingredient" data-val="true" data-val-required="The IngredientId field is required.">'+
                 '</select></div></th><th><div class="form-group">'+
-                           '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="IngredientsInRecipe_'+i+'__Count" name="IngredientsInRecipe['+i+'].Count" value="0">'+
+                           '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="IngredientsInRecipe_'+i+'__Count" name="IngredientsInRecipe['+i+'].Count" value="0" >'+
                            '<span class="text-danger field-validation-valid" data-valmsg-for="IngredientsInRecipe['+i+'].Count" data-valmsg-replace="true"></span>'+
                            '</div> </th><th> Count</th></tr>');
                 
