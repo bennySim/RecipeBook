@@ -18,7 +18,7 @@
 </head>
 <body>
 <h4>Import recipe from file:</h4>
-<form method="post" enctype="multipart/form-data">
+<form asp-page-handler="parseXml" method="post" enctype="multipart/form-data">
     <input type="file" asp-for="UploadFileName"/>
     <input type="submit"/>
 </form>
