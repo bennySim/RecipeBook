@@ -55,15 +55,15 @@ namespace WebApplication2.Pages.RecipePages
         {
             XElement recipeEl = XElement.Load(UploadFileName.OpenReadStream());
             var name = recipeEl.Descendants("name").FirstOrDefault()?.Value;
-            
+
             var cookingTimeStr = recipeEl.Descendants("cookingTime").FirstOrDefault()?.Value;
             Int32.TryParse(cookingTimeStr, out var cookingTime);
-            
+
             var portionsStr = recipeEl.Descendants("portions").FirstOrDefault()?.Value;
             Int32.TryParse(portionsStr, out var portions);
-            
+
             var instructions = recipeEl.Descendants("instructions").FirstOrDefault()?.Value;
-            
+
             ingredients = recipeEl.Descendants("ingredient")
                 .Select(TransformToIngredient)
                 .ToList();
@@ -77,12 +77,12 @@ namespace WebApplication2.Pages.RecipePages
         private IngredientWithCount TransformToIngredient(XElement el)
         {
             var name = el.Descendants("name").FirstOrDefault()?.Value;
-            
+
             var countStr = el.Descendants("count").FirstOrDefault()?.Value;
             Int32.TryParse(countStr, out var count);
-            
+
             var unit = el.Descendants("unit").FirstOrDefault()?.Value;
-            
+
             return new IngredientWithCount() {Name = name, Count = (uint) count, Unit = unit};
         }
 
@@ -123,8 +123,25 @@ namespace WebApplication2.Pages.RecipePages
 
     public class IngredientWithCount
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public uint Count { get; set; }
         public string Unit { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            IngredientWithCount ingedient = obj as IngredientWithCount;
+            if (ingedient == null)
+            {
+                return false;
+            }
+
+            return Id == ingedient.Id && Name == ingedient.Name && Count == ingedient.Count && Unit == ingedient.Unit;
+        }
     }
 }
