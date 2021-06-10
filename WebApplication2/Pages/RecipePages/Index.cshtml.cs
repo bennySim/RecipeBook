@@ -23,7 +23,7 @@ namespace WebApplication2.Pages.RecipePages
         
         public async Task OnGetAsync()
         {
-            SearchString = SearchString.ToLower();
+            SearchString = SearchString?.ToLower(); 
             var recipes = _context.Set<Recipe>().Select(m => m);
             if (!string.IsNullOrEmpty(SearchString))
             {
