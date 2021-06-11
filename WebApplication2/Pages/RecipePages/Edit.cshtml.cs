@@ -79,7 +79,9 @@ namespace WebApplication2.Pages.RecipePages
                 .AsNoTracking()
                 .Where(ri => ri.RecipeId == Recipe.Id).ToListAsync();
             var ingredients = await GetIngredientsOfRecipe(ingredientsInRecipe);
-            var changedIngredients = Ingredients.Where(i => !ingredients.Contains(i));
+            var changedIngredients = Ingredients
+                .Where(i => i.Count != 0)
+                .Where(i => !ingredients.Contains(i));
             changedIngredients.Where(i => OnlyCountIsDifferent(i, ingredients))
                 .ToList()
                 .ForEach(i => ingredientsInRecipe.FirstOrDefault(ir => ir.IngredientId == i.Id).Count = i.Count);
