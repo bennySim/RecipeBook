@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication2
 {
-    public class RecipesContext : DbContext
+    public sealed class RecipesContext : DbContext
     {
         public RecipesContext(DbContextOptions<RecipesContext> options)
             : base(options)
@@ -11,7 +11,7 @@ namespace WebApplication2
             Database.EnsureCreated();
         }
 
-        public RecipesContext() : base()
+        public RecipesContext()
         {
             Database.EnsureCreated();
         }

@@ -9,18 +9,13 @@ namespace WebApplication2
 
         public override bool Equals(object? obj)
         {
-            if (obj == null)
+            var ingredient = obj as IngredientWithCount;
+            if (ingredient == null)
             {
                 return false;
             }
 
-            IngredientWithCount ingedient = obj as IngredientWithCount;
-            if (ingedient == null)
-            {
-                return false;
-            }
-
-            return Id == ingedient.Id && Name == ingedient.Name && Count == ingedient.Count && Unit == ingedient.Unit;
+            return Id == ingredient.Id && Name == ingredient.Name && Count == ingredient.Count && Unit == ingredient.Unit;
         }
     }
 }

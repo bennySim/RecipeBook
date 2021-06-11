@@ -1,19 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using WebApplication2;
 
 namespace WebApplication2.Pages.RecipePages
 {
     public class DeleteModel : PageModel
     {
-        private readonly WebApplication2.RecipesContext _context;
+        private readonly RecipesContext _context;
 
-        public DeleteModel(WebApplication2.RecipesContext context)
+        public DeleteModel(RecipesContext context)
         {
             _context = context;
         }
