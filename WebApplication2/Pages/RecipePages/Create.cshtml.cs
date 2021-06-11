@@ -83,28 +83,23 @@ namespace WebApplication2.Pages.RecipePages
 
             var unit = el.Descendants("unit").FirstOrDefault()?.Value;
 
-            return new IngredientWithCount() {Name = name, Count = (uint) count, Unit = unit};
+            return new IngredientWithCount {Name = name, Count = (uint) count, Unit = unit};
         }
 
         private async Task AddRecipeToDatabase(Recipe recipe, List<IngredientWithCount> ingredients)
         {
             foreach (var ingredient in ingredients)
             {
-                var tmpIngredient = new Ingredient() {Name = ingredient.Name, Unit = ingredient.Unit};
-                var inTable = _context.Set<Ingredient>()
-                    .Where(i => i.Name == ingredient.Name && i.Unit == ingredient.Unit);
-                if (inTable.Count() != 0)
-                {
-                    tmpIngredient = inTable.First();
-                }
-
-                RecipeIngredient recipeIngredient = new RecipeIngredient()
+                var ingredientToAdd = _context.Set<Ingredient>()
+                                          .FirstOrDefault(i => i.Name == ingredient.Name && i.Unit == ingredient.Unit)
+                                      ?? new Ingredient {Name = ingredient.Name, Unit = ingredient.Unit};
+                RecipeIngredient recipeIngredient = new RecipeIngredient
                 {
                     Recipe = recipe,
-                    Ingredient = tmpIngredient,
+                    Ingredient = ingredientToAdd,
                     Count = ingredient.Count
                 };
-                _context.Set<RecipeIngredient>().Add(recipeIngredient);
+                await _context.Set<RecipeIngredient>().AddAsync(recipeIngredient);
             }
 
             await _context.SaveChangesAsync();
@@ -120,6 +115,4 @@ namespace WebApplication2.Pages.RecipePages
             };
         }
     }
-
-
 }
