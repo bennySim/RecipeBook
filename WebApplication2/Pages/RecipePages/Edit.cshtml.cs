@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WebApplication2.Pages.RecipePages
 {
@@ -69,10 +71,8 @@ namespace WebApplication2.Pages.RecipePages
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
 
             var ingredientsInRecipe = await _context.Set<RecipeIngredient>()
@@ -81,11 +81,14 @@ namespace WebApplication2.Pages.RecipePages
             var ingredients = await GetIngredientsOfRecipe(ingredientsInRecipe);
             var changedIngredients = Ingredients
                 .Where(i => i.Count != 0)
-                .Where(i => !ingredients.Contains(i));
-            changedIngredients.Where(i => OnlyCountIsDifferent(i, ingredients))
+                .Where(i => !ingredients.Contains(i))
+                .GroupBy(i => OnlyCountIsDifferent(i, ingredients))
+                .ToImmutableDictionary(g => g.Key ? "CountIsDifferent" : "NotOnlyCountIsDifferent", g => g.ToList());
+
+            (changedIngredients.GetValueOrDefault("CountIsDifferent") ?? new List<IngredientWithCount>())
                 .ToList()
-                .ForEach(i => ingredientsInRecipe.FirstOrDefault(ir => ir.IngredientId == i.Id).Count = i.Count);
-            changedIngredients.Where(i => !OnlyCountIsDifferent(i, ingredients))
+                .ForEach(i => UpdateCountInIngredient(ingredientsInRecipe, i));
+            (changedIngredients.GetValueOrDefault("NotOnlyCountIsDifferent") ?? new List<IngredientWithCount>())
                 .ToList()
                 .ForEach(async i => await UpdateIngredients(i));
             try
@@ -99,6 +102,15 @@ namespace WebApplication2.Pages.RecipePages
             return RedirectToPage("./Index");
         }
 
+        private void UpdateCountInIngredient(List<RecipeIngredient> ingredientsInRecipe,
+            IngredientWithCount changedIngredient)
+        {
+            var ingredient = ingredientsInRecipe.FirstOrDefault(i => i.IngredientId == changedIngredient.Id);
+            ingredient.Count = changedIngredient.Count;
+            _context.Set<RecipeIngredient>().Update(ingredient);
+            _context.SaveChanges();
+        }
+
         private async Task UpdateIngredients(IngredientWithCount ingredient)
         {
             if (ingredient.Id != 0)
@@ -109,23 +121,14 @@ namespace WebApplication2.Pages.RecipePages
                 await _context.SaveChangesAsync();
             }
 
-            var ingredientInDatabase = _context.Set<Ingredient>()
-                .AsNoTracking()
-                .FirstOrDefault(i => i.Name == ingredient.Name && i.Unit == ingredient.Unit);
-            RecipeIngredient newRecipeIngredient;
-            if (ingredientInDatabase is not null)
-            {
-                newRecipeIngredient = new RecipeIngredient()
-                    {Recipe = Recipe, Ingredient = ingredientInDatabase, Count = ingredient.Count};
-            }
-            else
-            {
-                var newIngredient = new Ingredient() {Name = ingredient.Name, Unit = ingredient.Unit};
-                newRecipeIngredient = new RecipeIngredient()
-                    {Recipe = Recipe, Ingredient = newIngredient, Count = ingredient.Count};
-            }
+            var ingredientToAdd = _context.Set<Ingredient>()
+                                           //.AsNoTracking()
+                                           .FirstOrDefault(i => i.Name == ingredient.Name && i.Unit == ingredient.Unit)
+                                       ?? new Ingredient {Name = ingredient.Name, Unit = ingredient.Unit};
+            var recipeIngredientToAdd = new RecipeIngredient
+                {Recipe = Recipe, Ingredient = ingredientToAdd, Count = ingredient.Count};
 
-            _context.Set<RecipeIngredient>().Add(newRecipeIngredient);
+            await _context.Set<RecipeIngredient>().AddAsync(recipeIngredientToAdd);
             await _context.SaveChangesAsync();
         }
 
