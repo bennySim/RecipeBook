@@ -65,7 +65,8 @@
 </div>
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.Recipe.Id">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
+    <a asp-page="./Index">Back to List</a> |
+    <a asp-page="./Details" asp-page-handler="SaveXml" asp-route-id="@Model.Recipe.Id">Download XML</a>
 </div>
 </body>
 </html>
