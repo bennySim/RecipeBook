@@ -15,10 +15,20 @@ namespace WebApplication2
         public uint CookingTime { get; set; }
 
         public uint Portions { get; set; }
+        
+        public Category Category { get; set; }
 
         [DataType(DataType.Text)] public string Instructions { get; set; }
  
         public virtual ICollection<RecipeIngredient> RecipeIngredients { get; set; }
+    }
+
+    public enum Category
+    {
+        Lunch,
+        Breakfast,
+        Drink,
+        Dessert,
     }
 
     public class RecipeIngredient

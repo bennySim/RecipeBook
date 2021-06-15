@@ -17,7 +17,7 @@ namespace WebApplication2
         }
  
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite(@"Data Source=/home/simona/RiderProjects/WebApplication2/WebApplication2/RecipeBook.db");
+            => options.UseSqlite(@"Data Source=/home/simona/RiderProjects/WebApplication2/WebApplication2/RecipeBooks.db");
         
         public System.Data.Entity.DbSet<Recipe> Recipes { get; set; }
         public System.Data.Entity.DbSet<RecipeIngredient> RecipeIngredients { get; set; }
@@ -40,10 +40,14 @@ namespace WebApplication2
                
             modelBuilder.Entity<Recipe>()
                 .HasKey(o => o.Id);
+            
             modelBuilder.Entity<Ingredient>()
                 .HasKey(o => o.Id);
-            /*modelBuilder.Entity<RecipeIngredient>()
-                .HasKey(k => new {k.IngredientId, k.RecipeId});*/
+            
+            modelBuilder.Entity<Recipe>()
+                .Property(r => r.Category)
+                .HasConversion<string>();
+            
             base.OnModelCreating(modelBuilder);
             
         }

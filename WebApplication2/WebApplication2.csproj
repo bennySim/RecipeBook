@@ -32,9 +32,15 @@
       <_ContentIncludedByDefault Remove="Pages\RecipePages\Counter.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\IngrRecipePages\Create.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\IngrRecipePages\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\RecipePages\SearchAccordingIngredient.cshtml" />
     </ItemGroup>
 
     <ItemGroup>
+      <UpToDateCheckInput Remove="Pages\RecipePages\Create.cshtml" />
+      <UpToDateCheckInput Remove="Pages\RecipePages\Delete.cshtml" />
+      <UpToDateCheckInput Remove="Pages\RecipePages\Details.cshtml" />
+      <UpToDateCheckInput Remove="Pages\RecipePages\Edit.cshtml" />
+      <UpToDateCheckInput Remove="Pages\RecipePages\Index.cshtml" />
       <UpToDateCheckInput Remove="Pages\RecipePages\Create.cshtml" />
       <UpToDateCheckInput Remove="Pages\RecipePages\Delete.cshtml" />
       <UpToDateCheckInput Remove="Pages\RecipePages\Details.cshtml" />

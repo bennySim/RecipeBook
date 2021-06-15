@@ -1,9 +1,53 @@
-﻿@page "/"
-@inject IJSRuntime JS
+@page
+@model WebApplication2.Pages.RecipePages.IndexModel
 
-@using WebApplication2.Pages.Shared
-@using Microsoft.JSInterop
-@model IndexModel
 @{
-    Layout = "Shared/_Layout.cshtml";
+    ViewData["Title"] = "- Recipes";
+    Layout = "Shared/_Layout";
 }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Index</title>
+</head>
+<body>
+
+<form>
+    <p>
+        Keyword: <input type="text" asp-for="SearchString"/>
+        <input type="submit" value="Search"/>
+    </p>
+</form>
+<br/>
+<div class="form-group">
+    <a asp-page="Create" class="btn btn-primary">Create New</a>
+</div>
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Recipe[0].Name)
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.Recipe)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+</body>
+</html>
