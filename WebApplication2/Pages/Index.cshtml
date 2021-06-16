@@ -14,16 +14,55 @@
 </head>
 <body>
 
-<form>
+<form method="post">
     <p>
         Keyword: <input type="text" asp-for="SearchString"/>
         <input type="submit" value="Search"/>
     </p>
+    <div class="form-group">
+        <select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()" class="form-control">
+            <option selected="selected" value="">Search according category</option>
+        </select>
+    </div>
+    <div class="form-group">Find recipes with specified ingredients: </div>
+    <table class="table" id="js">
+        <tr>
+            <th>
+                <div class="form-group">
+                    <select id="ingredient0" asp-for="IngredientsInRecipe[0].IngredientId" class="form-control ingredient">
+                        <option value="0">Select an ingredient</option>
+                        @for (var i = 0; i < Model.Ingredient.Count; i++)
+                        {
+                            <option value="@Model.Ingredient[i].Id">@Model.Ingredient[i].Name (@Model.Ingredient[i].Unit)</option>
+                        }
+                    </select>
+
+                </div>
+            </th>
+            <th>
+                <div class="form-group">
+                    <input asp-for="IngredientsInRecipe[0].Count" class="form-control" value="0"/>
+                    <span asp-validation-for="IngredientsInRecipe[0].Count" class="text-danger"></span>
+                </div>
+            </th>
+            <th> @Html.DisplayNameFor(model => model.IngredientsInRecipe[0].Count)</th>
+        </tr>
+
+    </table>
+    <span class="form-group">
+        <input type="button" value="Add a field" class="add btn btn-primary" id="add"/>
+    </span>
+    <br/>
+    <br/>
+    <span class="form-group">
+        <input type="submit" value="Search" class="btn btn-primary"/>
+    </span>
 </form>
 <br/>
-<div class="form-group">
-    <a asp-page="Create" class="btn btn-primary">Create New</a>
-</div>
+
+<h1  class="form-group">Recipes</h1>
+
+<p>@ViewData["Message"]</p>
 <table class="table">
     <thead>
     <tr>
@@ -49,5 +88,28 @@
     }
     </tbody>
 </table>
+
+<div class="form-group">
+    <a asp-page="Create" class="btn btn-primary">Create New</a>
+</div>
 </body>
 </html>
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#add').on('click', function () {
+                var i = $(".ingredient").length;
+                var start = $('<tr><th> <div class="form-group"><select name="IngredientsInRecipe['+i+'].IngredientId" id="ingredient'+i+'" class="form-control ingredient" data-val="true" data-val-required="The IngredientId field is required.">'+
+                '</select></div></th><th><div class="form-group">'+
+                           '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="IngredientsInRecipe_'+i+'__Count" name="IngredientsInRecipe['+i+'].Count" value="0" >'+
+                           '<span class="text-danger field-validation-valid" data-valmsg-for="IngredientsInRecipe['+i+'].Count" data-valmsg-replace="true"></span>'+
+                           '</div> </th><th> Count</th></tr>');
+                
+                var options = $("#ingredient0").clone(true).children("option");
+                start.find("select").append(options);
+                $("#js").append(start);
+            });
+        });
+</script>
+}
