@@ -1,0 +1,96 @@
+@page
+@model WebApplication2.Pages.RecipePages.SearchAccordingIngredient
+
+@{
+    ViewData["Title"] = "- Search";
+    Layout = "Shared/_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Index</title>
+</head>
+<body>
+<form method="post">
+    <table class="table" id="js">
+        <tr>
+            <th>
+                <div class="form-group">
+                    <select id="ingredient0" asp-for="IngredientsInRecipe[0].IngredientId" class="form-control ingredient">
+                        <option value="0">Select an ingredient</option>
+                        @for (var i = 0; i < Model.Ingredient.Count; i++)
+                        {
+                            <option value="@Model.Ingredient[i].Id">@Model.Ingredient[i].Name (@Model.Ingredient[i].Unit)</option>
+                        }
+                    </select>
+
+                </div>
+            </th>
+            <th>
+                <div class="form-group">
+                    <input asp-for="IngredientsInRecipe[0].Count" class="form-control" value="0"/>
+                    <span asp-validation-for="IngredientsInRecipe[0].Count" class="text-danger"></span>
+                </div>
+            </th>
+            <th> @Html.DisplayNameFor(model => model.IngredientsInRecipe[0].Count)</th>
+        </tr>
+
+    </table>
+    <div class="form-group">
+        <label asp-for="Category" class="control-label"></label>
+        <select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()" class="form-control">
+            <option selected="selected" value="">Search according category</option>
+        </select>
+    </div>
+    <span class="form-group">
+        <input type="button" value="Add a field" class="add btn btn-primary" id="add"/> <input type="submit" value="Search" class="btn btn-primary"/>
+    </span>
+</form>
+<p>@ViewData["Message"]</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Recipe Name
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.Recipe)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+</body>
+</html>
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#add').on('click', function () {
+                var i = $(".ingredient").length;
+                var start = $('<tr><th> <div class="form-group"><select name="IngredientsInRecipe['+i+'].IngredientId" id="ingredient'+i+'" class="form-control ingredient" data-val="true" data-val-required="The IngredientId field is required.">'+
+                '</select></div></th><th><div class="form-group">'+
+                           '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="IngredientsInRecipe_'+i+'__Count" name="IngredientsInRecipe['+i+'].Count" value="0" >'+
+                           '<span class="text-danger field-validation-valid" data-valmsg-for="IngredientsInRecipe['+i+'].Count" data-valmsg-replace="true"></span>'+
+                           '</div> </th><th> Count</th></tr>');
+                
+                var options = $("#ingredient0").clone(true).children("option");
+                start.find("select").append(options);
+                $("#js").append(start);
+            });
+        });
+</script>
+}
