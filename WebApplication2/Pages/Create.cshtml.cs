@@ -95,6 +95,9 @@ namespace WebApplication2.Pages.RecipePages
 
         private async Task AddRecipeToDatabase(Recipe recipe, List<IngredientWithCount> ingredients)
         {
+            ingredients = ingredients.Where(i => !string.IsNullOrEmpty(i.Name) 
+                                                 && i.Count != 0 
+                                                 && !string.IsNullOrEmpty(i.Unit)).ToList();
             foreach (var ingredient in ingredients)
             {
                 var ingredientToAdd = _context.Set<Ingredient>()
