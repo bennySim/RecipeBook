@@ -52,7 +52,8 @@
             </div>
             <div class="form-group">
                 <label asp-for="Recipe.Instructions" class="control-label"></label>
-                <input asp-for="Recipe.Instructions" class="form-control"/>
+                <br/>
+                @Model.Ingredients.Count . <input asp-for="Recipe.Instructions" class="form-control"/>
                 <span asp-validation-for="Recipe.Instructions" class="text-danger"></span>
             </div>
             <h5>Ingredients:</h5>
@@ -60,37 +61,53 @@
                 <form method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <table class="table">
-                        <thead id="temp">
-                        <tr class="items">
+                        <thead >
+                        <tr>
                             <th>
                                 <div class="form-group">
                                     <label asp-for="Ingredients[0].Name" class="control-label"></label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group">
+                                    <label asp-for="Ingredients[0].Count" class="control-label"></label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group">
+                                    <label asp-for="Ingredients[0].Unit" class="control-label"></label>
+                                </div>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody id="temp">
+                        <tr class="items">
+                            <th>
+                                <div class="form-group">
                                     <input asp-for="Ingredients[0].Name" class="form-control"/>
                                     <span asp-validation-for="Ingredients[0].Name" class="text-danger"></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="form-group">
-                                    <label asp-for="Ingredients[0].Count" class="control-label"></label>
                                     <input asp-for="Ingredients[0].Count" class="form-control"/>
                                     <span asp-validation-for="Ingredients[0].Count" class="text-danger"></span>
                                 </div>
                             </th>
                             <th>
                                 <div class="form-group">
-                                    <label asp-for="Ingredients[0].Unit" class="control-label"></label>
                                     <input asp-for="Ingredients[0].Unit" class="form-control"/>
                                     <span asp-validation-for="Ingredients[0].Unit" class="text-danger"></span>
                                 </div>
                             </th>
                         </tr>
-                        </thead>
+                        </tbody>
 
 
                     </table>
 
                     <div class="form-group">
-                        <input type="button" value="Add a field" class="add btn btn-primary" id="add"/>
+                        <input type="button" value="Add ingredient" class="add btn btn-primary" id="add"/>
                         <input type="submit" value="Create" class="btn btn-primary"/>
                     </div>
                 </form>
@@ -110,16 +127,13 @@
             $('#add').on('click', function () {
                 var i = $(".items").length;
                 var r = $('<tr class="items"><th><div class="form-group">'+
-                '<label class="control-label" for="Ingredients_'+i+'__Name">Name</label>'+
                            '<input class="form-control" type="text" id="Ingredients_'+i+'__Name" name="Ingredients['+i+'].Name" value>'+
                             '<span class="text-danger field-validation-valid" data-valmsg-for="Ingredients['+i+'].Name" data-valmsg-replace="true"></span>'+
                             '</div></th><th>' +
                             '<div class="form-group">'+
-                                                       '<label class="control-label" for="Ingredients_'+i+'__Count">Count</label>'+
                                                                  '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="Ingredients_'+i+'__Count" name="Ingredients['+i+'].Count" value="0">'+
                                                                 ' <span class="text-danger field-validation-valid" data-valmsg-for="Ingredients['+i+'].Count" data-valmsg-replace="true"></span>'+
                                                              '</div> </th><th><div class="form-group">'+
-                                                                 '<label class="control-label" for="Ingredients_'+i+'__Unit">Unit</label>'+
                                                                  '<input class="form-control" type="text" id="Ingredients_'+i+'__Unit" name="Ingredients['+i+'].Unit" value="">'+
                                                                  '<span class="text-danger field-validation-valid" data-valmsg-for="Ingredients['+i+'].Unit" data-valmsg-replace="true"></span> </div> </th> </tr>');
                 $("#temp").append(r);
