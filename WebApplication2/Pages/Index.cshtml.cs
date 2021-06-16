@@ -21,7 +21,7 @@ namespace WebApplication2.Pages.RecipePages
         [BindProperty(SupportsGet = true)] public string SearchString { get; set; }
 
         [BindProperty]
-        public List<IngredientInRecipe> IngredientsInRecipe { get; set; } =
+        public List<IngredientWithCount> IngredientsInRecipe { get; set; } =
             new() {new()};
 
         [BindProperty] public Category? Category { get; set; }
@@ -61,7 +61,7 @@ namespace WebApplication2.Pages.RecipePages
             {
                 var recipeIngredients = await _context.Set<RecipeIngredient>().ToListAsync();
                 Recipe = IngredientsInRecipe.Where(r => r.Count > 0)
-                    .Join(recipeIngredients, ri => ri.IngredientId, ri => ri.IngredientId, (ri1, ri2) =>
+                    .Join(recipeIngredients, ri => ri.Id, ri => ri.IngredientId, (ri1, ri2) =>
                         new {Recipe = ri2, ri1.Count})
                     .Where(r => r.Recipe.Count <= r.Count)
                     .GroupBy(r => r.Recipe.RecipeId)
@@ -99,7 +99,7 @@ namespace WebApplication2.Pages.RecipePages
             if (IngredientsInRecipe.Count > 1 || IngredientsInRecipe[0].Count != 0)
             {
                 submessages.Add(" from ingredients " + IngredientsInRecipe
-                    .Join(Ingredient, i => i.IngredientId, i => i.Id, (ir, i) =>
+                    .Join(Ingredient, i => i.Id, i => i.Id, (ir, i) =>
                         new
                         {
                             i.Name,

@@ -30,7 +30,7 @@
         <tr>
             <th>
                 <div class="form-group">
-                    <select id="ingredient0" asp-for="IngredientsInRecipe[0].IngredientId" class="form-control ingredient">
+                    <select id="ingredient0" asp-for="IngredientsInRecipe[0].Id" class="form-control ingredient">
                         <option value="0">Select an ingredient</option>
                         @for (var i = 0; i < Model.Ingredient.Count; i++)
                         {
