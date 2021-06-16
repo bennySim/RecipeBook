@@ -52,8 +52,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Recipe.Instructions" class="control-label"></label>
-                <br/>
-                @Model.Ingredients.Count . <input asp-for="Recipe.Instructions" class="form-control"/>
+                <input asp-for="Recipe.Instructions" class="form-control instruction"/>
                 <span asp-validation-for="Recipe.Instructions" class="text-danger"></span>
             </div>
             <h5>Ingredients:</h5>
@@ -61,7 +60,7 @@
                 <form method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <table class="table">
-                        <thead >
+                        <tbody id="temp">
                         <tr>
                             <th>
                                 <div class="form-group">
@@ -79,8 +78,6 @@
                                 </div>
                             </th>
                         </tr>
-                        </thead>
-                        <tbody id="temp">
                         <tr class="items">
                             <th>
                                 <div class="form-group">
