@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
 using Microsoft.AspNetCore.Http;
@@ -27,14 +28,21 @@ namespace WebApplication2.Pages.RecipePages
         [BindProperty] public Recipe Recipe { get; set; }
 
         [BindProperty] public IFormFile UploadFileName { get; set; }
-        [BindProperty] public List<IngredientWithCount> Ingredients { get; set; } = new() {new IngredientWithCount()};
-        [BindProperty] public uint Count { get; set; }
+        [BindProperty] public List<IngredientWithCount> Ingredients { get; set; }
 
-        private string ValidationResult;
+        private string _validationResult;
 
         public async Task<IActionResult> OnPostParseXML()
         {
-            ParseRecipeFromXml(out var recipe, out var ingredients);
+            var isValid = ValidateFile(out var doc);
+            if (!isValid)
+            {
+                Recipe = new Recipe();
+                Ingredients = new List<IngredientWithCount> {new()};
+                return Page();
+            }
+
+            ParseRecipeFromXml(doc, out var recipe, out var ingredients);
             await AddRecipeToDatabase(recipe, ingredients);
             return RedirectToPage("./Index");
         }
@@ -51,9 +59,9 @@ namespace WebApplication2.Pages.RecipePages
             return RedirectToPage("./Index");
         }
 
-        private void ParseRecipeFromXml(out Recipe recipe, out List<IngredientWithCount> ingredients)
+        private void ParseRecipeFromXml(XDocument doc, out Recipe recipe, out List<IngredientWithCount> ingredients)
         {
-            var recipeEl = XElement.Load(UploadFileName.OpenReadStream());
+            var recipeEl = doc.Root;
             var name = recipeEl.Descendants("name").FirstOrDefault()?.Value;
 
             var cookingTimeStr = recipeEl.Descendants("cookingTime").FirstOrDefault()?.Value;
@@ -70,7 +78,7 @@ namespace WebApplication2.Pages.RecipePages
             ingredients = recipeEl.Descendants("ingredient")
                 .Select(TransformToIngredient)
                 .ToList();
-            
+
             recipe = new Recipe
             {
                 Name = name,
@@ -79,6 +87,22 @@ namespace WebApplication2.Pages.RecipePages
                 Portions = (uint) portions,
                 Instructions = instructions
             };
+        }
+
+        private bool ValidateFile(out XDocument doc)
+        {
+            XmlSchemaSet schema = new XmlSchemaSet();
+            schema.Add("", "/home/simona/git/RecipeBook/WebApplication2/Pages/Shared/recipeScheme.xsd");
+            XmlReader rd = XmlReader.Create(UploadFileName.OpenReadStream());
+            doc = XDocument.Load(rd);
+            doc.Validate(schema, ValidationEventHandler);
+            if (!string.IsNullOrEmpty(_validationResult))
+            {
+                ViewData["Validation"] = _validationResult;
+                return false;
+            }
+
+            return true;
         }
 
         private IngredientWithCount TransformToIngredient(XElement el)
@@ -95,8 +119,8 @@ namespace WebApplication2.Pages.RecipePages
 
         private async Task AddRecipeToDatabase(Recipe recipe, List<IngredientWithCount> ingredients)
         {
-            ingredients = ingredients.Where(i => !string.IsNullOrEmpty(i.Name) 
-                                                 && i.Count != 0 
+            ingredients = ingredients.Where(i => !string.IsNullOrEmpty(i.Name)
+                                                 && i.Count != 0
                                                  && !string.IsNullOrEmpty(i.Unit)).ToList();
             foreach (var ingredient in ingredients)
             {
@@ -117,7 +141,7 @@ namespace WebApplication2.Pages.RecipePages
 
         void ValidationEventHandler(object sender, ValidationEventArgs args)
         {
-            ValidationResult = args.Severity switch
+            _validationResult = args.Severity switch
             {
                 XmlSeverityType.Error => $"Error: {args.Message}",
                 XmlSeverityType.Warning => $"Warning {args.Message}",

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:element name="recipe">
+  <xs:complexType>
+  <xs:sequence>
+  <xs:element name="name" type="xs:string"/>
+  <xs:element name="cookingTime" type="xs:integer" minOccurs="0"/>
+  <xs:element name="category">
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Lunch"/>
+      <xs:enumeration value="Breakfast"/>
+      <xs:enumeration value="Drink"/>
+      <xs:enumeration value="Dessert"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+  <xs:element name="portions" type="xs:integer" minOccurs="0"/>
+  <xs:element name="ingredients">
+  <xs:complexType>
+    <xs:sequence >
+      <xs:element name="ingredient" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="count" type="xs:decimal"/>
+            <xs:element name="unit" type="xs:string"/>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+<xs:element name="instructions"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:schema>

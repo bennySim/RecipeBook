@@ -22,6 +22,7 @@
     <input type="file" asp-for="UploadFileName"/>
     <input type="submit"/>
 </form>
+<p>@ViewData["Validation"]</p>
 <br/>
 <h4>Recipe</h4>
 <hr/>
@@ -128,11 +129,11 @@
                             '<span class="text-danger field-validation-valid" data-valmsg-for="Ingredients['+i+'].Name" data-valmsg-replace="true"></span>'+
                             '</div></th><th>' +
                             '<div class="form-group">'+
-                                                                 '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="Ingredients_'+i+'__Count" name="Ingredients['+i+'].Count" value="0">'+
-                                                                ' <span class="text-danger field-validation-valid" data-valmsg-for="Ingredients['+i+'].Count" data-valmsg-replace="true"></span>'+
-                                                             '</div> </th><th><div class="form-group">'+
-                                                                 '<input class="form-control" type="text" id="Ingredients_'+i+'__Unit" name="Ingredients['+i+'].Unit" value="">'+
-                                                                 '<span class="text-danger field-validation-valid" data-valmsg-for="Ingredients['+i+'].Unit" data-valmsg-replace="true"></span> </div> </th> </tr>');
+                            '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="Ingredients_'+i+'__Count" name="Ingredients['+i+'].Count" value="0">'+
+                            ' <span class="text-danger field-validation-valid" data-valmsg-for="Ingredients['+i+'].Count" data-valmsg-replace="true"></span>'+
+                            '</div> </th><th><div class="form-group">'+
+                            '<input class="form-control" type="text" id="Ingredients_'+i+'__Unit" name="Ingredients['+i+'].Unit" value="">'+
+                            '<span class="text-danger field-validation-valid" data-valmsg-for="Ingredients['+i+'].Unit" data-valmsg-replace="true"></span> </div> </th> </tr>');
                 $("#temp").append(r);
             });
         });
