@@ -13,24 +13,37 @@ namespace WebApplication2.Pages.RecipePages
 {
     public class CreateModel : PageModel
     {
-        private readonly RecipesContext _context;
+        private readonly DatabaseManipulation _databaseManipulation;
 
         public CreateModel(RecipesContext context)
         {
-            _context = context;
+            _databaseManipulation = new DatabaseManipulation(context);
+        }
+
+        [BindProperty] public Recipe Recipe { get; set; }
+
+        [BindProperty] public IFormFile UploadFileName { get; set; }
+
+        [BindProperty] public List<IngredientWithCount> Ingredients { get; set; }
+
+        private string _validationResult;
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            await AddRecipeToDatabase(Recipe, Ingredients);
+
+            return RedirectToPage("./Index");
         }
 
         public IActionResult OnGet()
         {
             return Page();
         }
-
-        [BindProperty] public Recipe Recipe { get; set; }
-
-        [BindProperty] public IFormFile UploadFileName { get; set; }
-        [BindProperty] public List<IngredientWithCount> Ingredients { get; set; }
-
-        private string _validationResult;
 
         public async Task<IActionResult> OnPostParseXML()
         {
@@ -47,16 +60,32 @@ namespace WebApplication2.Pages.RecipePages
             return RedirectToPage("./Index");
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        private bool ValidateFile(out XDocument doc)
         {
-            if (!ModelState.IsValid)
+            var schema = new XmlSchemaSet();
+            schema.Add("", "./Pages/Shared/recipeScheme.xsd");
+            var reader = XmlReader.Create(UploadFileName.OpenReadStream());
+
+            doc = XDocument.Load(reader);
+            doc.Validate(schema, ValidationEventHandler);
+
+            if (!string.IsNullOrEmpty(_validationResult))
             {
-                return Page();
+                ViewData["Validation"] = _validationResult;
+                return false;
             }
 
-            await AddRecipeToDatabase(Recipe, Ingredients);
+            return true;
+        }
 
-            return RedirectToPage("./Index");
+        private void ValidationEventHandler(object sender, ValidationEventArgs args)
+        {
+            _validationResult = args.Severity switch
+            {
+                XmlSeverityType.Error => $"Error: {args.Message}",
+                XmlSeverityType.Warning => $"Warning {args.Message}",
+                _ => ""
+            };
         }
 
         private void ParseRecipeFromXml(XDocument doc, out Recipe recipe, out List<IngredientWithCount> ingredients)
@@ -89,22 +118,6 @@ namespace WebApplication2.Pages.RecipePages
             };
         }
 
-        private bool ValidateFile(out XDocument doc)
-        {
-            XmlSchemaSet schema = new XmlSchemaSet();
-            schema.Add("", "/home/simona/git/RecipeBook/WebApplication2/Pages/Shared/recipeScheme.xsd");
-            XmlReader rd = XmlReader.Create(UploadFileName.OpenReadStream());
-            doc = XDocument.Load(rd);
-            doc.Validate(schema, ValidationEventHandler);
-            if (!string.IsNullOrEmpty(_validationResult))
-            {
-                ViewData["Validation"] = _validationResult;
-                return false;
-            }
-
-            return true;
-        }
-
         private IngredientWithCount TransformToIngredient(XElement el)
         {
             var name = el.Descendants("name").FirstOrDefault()?.Value;
@@ -119,34 +132,10 @@ namespace WebApplication2.Pages.RecipePages
 
         private async Task AddRecipeToDatabase(Recipe recipe, List<IngredientWithCount> ingredients)
         {
-            ingredients = ingredients.Where(i => !string.IsNullOrEmpty(i.Name)
-                                                 && i.Count != 0
-                                                 && !string.IsNullOrEmpty(i.Unit)).ToList();
-            foreach (var ingredient in ingredients)
+            foreach (var i in ingredients)
             {
-                var ingredientToAdd = _context.Set<Ingredient>()
-                                          .FirstOrDefault(i => i.Name == ingredient.Name && i.Unit == ingredient.Unit)
-                                      ?? new Ingredient {Name = ingredient.Name, Unit = ingredient.Unit};
-                RecipeIngredient recipeIngredient = new RecipeIngredient
-                {
-                    Recipe = recipe,
-                    Ingredient = ingredientToAdd,
-                    Count = ingredient.Count
-                };
-                await _context.Set<RecipeIngredient>().AddAsync(recipeIngredient);
+                await _databaseManipulation.AddIngredientAsync(i, recipe);
             }
-
-            await _context.SaveChangesAsync();
-        }
-
-        void ValidationEventHandler(object sender, ValidationEventArgs args)
-        {
-            _validationResult = args.Severity switch
-            {
-                XmlSeverityType.Error => $"Error: {args.Message}",
-                XmlSeverityType.Warning => $"Warning {args.Message}",
-                _ => ""
-            };
         }
     }
 }

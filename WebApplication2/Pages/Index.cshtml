@@ -18,10 +18,11 @@
     <h2>Search by</h2>
     <div class="form-group">
         Keyword: <input type="text" asp-for="SearchString" class="form-control"/>
-       
+
     </div>
     <div class="form-group">
-        Category: <select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()" class="form-control">
+        Category:
+        <select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()" class="form-control">
             <option selected="selected" value="">Search according category</option>
         </select>
     </div>
@@ -61,7 +62,7 @@
 </form>
 <br/>
 
-<h1  class="form-group">Recipes</h1>
+<h1 class="form-group">Recipes</h1>
 
 <p>@ViewData["Message"]</p>
 <table class="table">
@@ -101,11 +102,11 @@
         $(function () {
             $('#add').on('click', function () {
                 var i = $(".ingredient").length;
-                var start = $('<tr><th> <div class="form-group"><select name="IngredientsInRecipe['+i+'].IngredientId" id="ingredient'+i+'" class="form-control ingredient" data-val="true" data-val-required="The IngredientId field is required.">'+
+                var start = $('<tr><th> <div class="form-group"><select name="IngredientsInRecipe['+i+'].Id" id="ingredient'+i+'" class="form-control ingredient" data-val="true" data-val-required="The IngredientId field is required.">'+
                 '</select></div></th><th><div class="form-group">'+
-                           '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="IngredientsInRecipe_'+i+'__Count" name="IngredientsInRecipe['+i+'].Count" value="0" >'+
-                           '<span class="text-danger field-validation-valid" data-valmsg-for="IngredientsInRecipe['+i+'].Count" data-valmsg-replace="true"></span>'+
-                           '</div> </th><th> Count</th></tr>');
+                '<input class="form-control" type="number" data-val="true" data-val-required="The Count field is required." id="IngredientsInRecipe_'+i+'__Count" name="IngredientsInRecipe['+i+'].Count" value="0" >'+
+                '<span class="text-danger field-validation-valid" data-valmsg-for="IngredientsInRecipe['+i+'].Count" data-valmsg-replace="true"></span>'+
+                '</div> </th><th> Count</th></tr>');
                 
                 var options = $("#ingredient0").clone(true).children("option");
                 start.find("select").append(options);

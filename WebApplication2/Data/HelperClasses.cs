@@ -17,5 +17,11 @@ namespace WebApplication2
 
             return Id == ingredient.Id && Name == ingredient.Name && Count == ingredient.Count && Unit == ingredient.Unit;
         }
+
+        public void Normalize()
+        {
+            Name = Name.ToLower();
+            Unit = Unit.ToLower();
+        }
     }
 }

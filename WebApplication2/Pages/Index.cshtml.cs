@@ -3,26 +3,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication2.Pages.RecipePages
 {
     public class IndexModel : PageModel
     {
-        private readonly RecipesContext _context;
-
+        private readonly DatabaseManipulation _databaseManipulation;
         public IndexModel(RecipesContext context)
         {
-            _context = context;
+            _databaseManipulation = new DatabaseManipulation(context);
         }
 
         public IList<Recipe> Recipe { get; set; }
 
         [BindProperty(SupportsGet = true)] public string SearchString { get; set; }
 
-        [BindProperty]
-        public List<IngredientWithCount> IngredientsInRecipe { get; set; } =
-            new() {new()};
+        [BindProperty] public List<IngredientWithCount> IngredientsInRecipe { get; set; }
 
         [BindProperty] public Category? Category { get; set; }
 
@@ -30,13 +26,16 @@ namespace WebApplication2.Pages.RecipePages
 
         public async Task OnGetAsync()
         {
-            Ingredient = await _context.Set<Ingredient>().ToListAsync();
-            Recipe = await _context.Set<Recipe>().ToListAsync();
+            Ingredient = await _databaseManipulation.GetAllIngredientsAsync();
+            Recipe = await _databaseManipulation.GetAllRecipesAsync();
         }
+
+       
+
 
         public async Task<PageResult> OnPost()
         {
-            Ingredient = await _context.Set<Ingredient>().ToListAsync();
+            Ingredient = await _databaseManipulation.GetAllIngredientsAsync();
             WriteMessage();
             await FindRecipesWithIngredients();
             return Page();
@@ -44,75 +43,90 @@ namespace WebApplication2.Pages.RecipePages
 
         private async Task FindRecipesWithIngredients()
         {
-            var recipes = await _context.Set<Recipe>().ToListAsync();
-
+            Recipe = await _databaseManipulation.GetAllRecipesAsync();
             if (!string.IsNullOrEmpty(SearchString))
             {
-                SearchString = SearchString.ToLower();
-                recipes = recipes.Where(r => r.Name.ToLower().Contains(SearchString)).ToList();
+                FilterAccordingKeyword();
             }
 
             if (Category is not null)
             {
-                recipes = recipes.Where(r => r.Category == Category).ToList();
+                FilterAccordingCategory();
             }
 
             if (IngredientsInRecipe.Count > 1 || IngredientsInRecipe[0].Count != 0)
             {
-                var recipeIngredients = await _context.Set<RecipeIngredient>().ToListAsync();
-                Recipe = IngredientsInRecipe.Where(r => r.Count > 0)
-                    .Join(recipeIngredients, ri => ri.Id, ri => ri.IngredientId, (ri1, ri2) =>
-                        new {Recipe = ri2, ri1.Count})
-                    .Where(r => r.Recipe.Count <= r.Count)
-                    .GroupBy(r => r.Recipe.RecipeId)
-                    .Join(recipes, rg => rg.Key, r => r.Id, (rg, r) =>
-                        new
-                        {
-                            Recipe = r,
-                            Count = rg.Count()
-                        })
-                    .Where(g => g.Recipe.RecipeIngredients.Count == g.Count)
-                    .Where(g => Category is null || g.Recipe.Category == Category)
-                    .Select(g => g.Recipe)
-                    .ToList();
+                await FilterAccordingIngredients();
             }
-            else
-            {
-                Recipe = recipes;
-            }
+        }
+
+        private async Task FilterAccordingIngredients()
+        {
+            var recipeIngredients = await _databaseManipulation.GetAllRecipeIngredientAsync();
+            Recipe = IngredientsInRecipe.Where(r => r.Count > 0)
+                .Join(recipeIngredients, ri => ri.Id, ri => ri.IngredientId, (ri1, ri2) =>
+                    new {Recipe = ri2, ri1.Count})
+                .Where(r => r.Recipe.Count <= r.Count)
+                .GroupBy(r => r.Recipe.RecipeId)
+                .Join(Recipe, rg => rg.Key, r => r.Id, (rg, r) =>
+                    new
+                    {
+                        Recipe = r,
+                        Count = rg.Count()
+                    })
+                .Where(g => g.Recipe.RecipeIngredients.Count == g.Count)
+                .Select(g => g.Recipe)
+                .ToList();
+        }
+
+        private void FilterAccordingCategory()
+        {
+            Recipe = Recipe.Where(r => r.Category == Category).ToList();
+        }
+
+        private void FilterAccordingKeyword()
+        {
+            SearchString = SearchString.ToLower();
+            Recipe = Recipe.Where(r => r.Name.ToLower().Contains(SearchString)).ToList();
         }
 
         private void WriteMessage()
         {
-            var message = "Recipes with";
-            var submessages = new List<string>();
+            const string messageStart = "Recipes with";
+            var subMessages = new List<string>();
             if (!string.IsNullOrEmpty(SearchString))
             {
-                submessages.Add(" name containing " + SearchString);
+                subMessages.Add(" name containing " + SearchString);
             }
 
             if (Category is not null)
             {
-                submessages.Add(" in category " + Category);
+                subMessages.Add(" in category " + Category);
             }
 
             if (IngredientsInRecipe.Count > 1 || IngredientsInRecipe[0].Count != 0)
             {
-                submessages.Add(" from ingredients " + IngredientsInRecipe
-                    .Join(Ingredient, i => i.Id, i => i.Id, (ir, i) =>
-                        new
-                        {
-                            i.Name,
-                            i.Unit,
-                            ir.Count
-                        })
-                    .Select(i =>" " + i.Count + " " + i.Unit + " of " + i.Name)
-                    .Aggregate((r1, r2) => r1 + ", " + r2)
-                );
+                subMessages.Add(AddMessageIngredients());
             }
 
-            message += string.Join(',', submessages) + '.';
-            ViewData["Message"] = message;
+            if (subMessages.Count != 0)
+            {
+                ViewData["Message"] = messageStart + string.Join(',', subMessages) + '.';
+            }
+        }
+
+        private string AddMessageIngredients()
+        {
+            return " from ingredients " + IngredientsInRecipe
+                .Join(Ingredient, i => i.Id, i => i.Id, (ir, i) =>
+                    new
+                    {
+                        i.Name,
+                        i.Unit,
+                        ir.Count
+                    })
+                .Select(i => " " + i.Count + " " + i.Unit + " of " + i.Name)
+                .Aggregate((r1, r2) => r1 + ", " + r2);
         }
     }
 }
