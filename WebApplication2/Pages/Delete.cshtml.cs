@@ -1,17 +1,16 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication2.Pages.RecipePages
 {
     public class DeleteModel : PageModel
     {
-        private readonly RecipesContext _context;
+        private readonly DatabaseManipulation _databaseManipulation;
 
         public DeleteModel(RecipesContext context)
         {
-            _context = context;
+            _databaseManipulation = new DatabaseManipulation(context);
         }
 
         [BindProperty]
@@ -24,7 +23,7 @@ namespace WebApplication2.Pages.RecipePages
                 return NotFound();
             }
 
-            Recipe = await _context.Set<Recipe>().FirstOrDefaultAsync(m => m.Id == id);
+            Recipe = await _databaseManipulation.GetRecipeWithIdAsync(id);
 
             if (Recipe == null)
             {
@@ -40,15 +39,11 @@ namespace WebApplication2.Pages.RecipePages
                 return NotFound();
             }
 
-            Recipe = await _context.Set<Recipe>().FindAsync(id);
-
-            if (Recipe != null)
-            {
-                _context.Set<Recipe>().Remove(Recipe);
-                await _context.SaveChangesAsync();
-            }
+            await _databaseManipulation.RemoveRecipeWithId(id);
 
             return RedirectToPage("./Index");
         }
+
+   
     }
 }

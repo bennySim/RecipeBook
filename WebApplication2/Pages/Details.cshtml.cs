@@ -5,23 +5,20 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication2.Pages.RecipePages
 {
     public class DetailsModel : PageModel
     {
-        private readonly RecipesContext _context;
+        private readonly DatabaseManipulation _databaseManipulation;
 
         public DetailsModel(RecipesContext context)
         {
-            _context = context;
+            _databaseManipulation = new DatabaseManipulation(context);
         }
 
         public Recipe Recipe { get; set; }
-        public List<IngredientWithCount> Ingredient { get; set; } = new();
-
-        [BindProperty] public int RecipeId { get; set; }
+        public List<IngredientWithCount> Ingredient { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -42,14 +39,12 @@ namespace WebApplication2.Pages.RecipePages
 
         private async Task FillRecipeANdIngredients(int? id)
         {
-            Recipe = await _context.Set<Recipe>().FirstOrDefaultAsync(m => m.Id == id);
-            Ingredient = _context.Set<RecipeIngredient>()
-                .Where(ri => ri.RecipeId == id)
-                .Select(ri => new IngredientWithCount
-                    {Name = ri.Ingredient.Name, Count = ri.Count, Unit = ri.Ingredient.Unit})
-                .ToList();
+            Recipe = await _databaseManipulation.GetRecipeWithIdAsync(id);
+            Ingredient = await _databaseManipulation.GetRecipeIngredientsWithCount(id);
         }
-        
+
+     
+
         public async Task<FileResult> OnGetSaveXml(int id)
         {
             await FillRecipeANdIngredients(id);
@@ -62,7 +57,7 @@ namespace WebApplication2.Pages.RecipePages
                     new XElement("ingredients", Ingredient.Select(CreateXmlIngredient)),
                     new XElement("instructions", Recipe.Instructions))
             );
-            return File(Encoding.UTF8.GetBytes(document.ToString()), "application/xml" , Recipe.Name + ".xml");
+            return File(Encoding.UTF8.GetBytes(document.ToString()), "application/xml", Recipe.Name + ".xml");
         }
 
         private XElement CreateXmlIngredient(IngredientWithCount ingredient)
