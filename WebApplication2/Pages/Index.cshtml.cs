@@ -9,6 +9,7 @@ namespace WebApplication2.Pages.RecipePages
     public class IndexModel : PageModel
     {
         private readonly DatabaseManipulation _databaseManipulation;
+
         public IndexModel(RecipesContext context)
         {
             _databaseManipulation = new DatabaseManipulation(context);
@@ -30,8 +31,6 @@ namespace WebApplication2.Pages.RecipePages
             Recipe = await _databaseManipulation.GetAllRecipesAsync();
         }
 
-       
-
 
         public async Task<PageResult> OnPost()
         {
@@ -44,6 +43,7 @@ namespace WebApplication2.Pages.RecipePages
         private async Task FindRecipesWithIngredients()
         {
             Recipe = await _databaseManipulation.GetAllRecipesAsync();
+            var chosenIngredients = IngredientsInRecipe.Where(i => i.Count > 0).ToList();
             if (!string.IsNullOrEmpty(SearchString))
             {
                 FilterAccordingKeyword();
@@ -54,16 +54,16 @@ namespace WebApplication2.Pages.RecipePages
                 FilterAccordingCategory();
             }
 
-            if (IngredientsInRecipe.Count > 1 || IngredientsInRecipe[0].Count != 0)
+            if (chosenIngredients.Count != 0)
             {
-                await FilterAccordingIngredients();
+                await FilterAccordingIngredients(chosenIngredients);
             }
         }
 
-        private async Task FilterAccordingIngredients()
+        private async Task FilterAccordingIngredients(List<IngredientWithCount> choosenIngredients)
         {
             var recipeIngredients = await _databaseManipulation.GetAllRecipeIngredientAsync();
-            Recipe = IngredientsInRecipe.Where(r => r.Count > 0)
+            Recipe = choosenIngredients.Where(r => r.Count > 0)
                 .Join(recipeIngredients, ri => ri.Id, ri => ri.IngredientId, (ri1, ri2) =>
                     new {Recipe = ri2, ri1.Count})
                 .Where(r => r.Recipe.Count <= r.Count)
@@ -104,9 +104,10 @@ namespace WebApplication2.Pages.RecipePages
                 subMessages.Add(" in category " + Category);
             }
 
-            if (IngredientsInRecipe.Count > 1 || IngredientsInRecipe[0].Count != 0)
+            var chosenIngredients = IngredientsInRecipe.Where(i => i.Count > 0).ToList();
+            if (chosenIngredients.Count > 0)
             {
-                subMessages.Add(AddMessageIngredients());
+                subMessages.Add(AddMessageIngredients(chosenIngredients));
             }
 
             if (subMessages.Count != 0)
@@ -115,9 +116,9 @@ namespace WebApplication2.Pages.RecipePages
             }
         }
 
-        private string AddMessageIngredients()
+        private string AddMessageIngredients(List<IngredientWithCount> chosenIngredients)
         {
-            return " from ingredients " + IngredientsInRecipe
+            return " from ingredients " + chosenIngredients
                 .Join(Ingredient, i => i.Id, i => i.Id, (ir, i) =>
                     new
                     {
