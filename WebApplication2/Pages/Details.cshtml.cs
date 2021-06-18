@@ -40,7 +40,7 @@ namespace WebApplication2.Pages.RecipePages
         private async Task FillRecipeANdIngredients(int? id)
         {
             Recipe = await _databaseManipulation.GetRecipeWithIdAsync(id);
-            Ingredient = await _databaseManipulation.GetRecipeIngredientsWithCount(id);
+            Ingredient = _databaseManipulation.GetRecipeIngredientsWithCount(id);
         }
 
      

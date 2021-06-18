@@ -30,7 +30,7 @@ namespace WebApplication2.Pages.RecipePages
 
             Recipe = await _databaseManipulation.GetRecipeWithIdAsync(id);
 
-            Ingredients = await _databaseManipulation.GetRecipeIngredientsWithCount(id);
+            Ingredients = _databaseManipulation.GetRecipeIngredientsWithCount(id);
 
             if (Recipe == null)
             {
