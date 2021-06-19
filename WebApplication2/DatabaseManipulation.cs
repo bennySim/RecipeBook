@@ -14,6 +14,13 @@ namespace WebApplication2
             _context = context;
         }
 
+        /// <summary>
+        /// Add ingredient connected to recipe to database.
+        /// If ingredient has empty name or unit or count is zero, nothing is added
+        /// Ingredient is normalized, so that name and unit is in lower case
+        /// </summary>
+        /// <param name="ingredient">ingredient to add</param>
+        /// <param name="recipe">recipe to which ingredient will be added</param>
         public async Task AddIngredientAsync(IngredientWithCount ingredient, Recipe recipe)
         {
             if (string.IsNullOrEmpty(ingredient.Name) || string.IsNullOrEmpty(ingredient.Unit) || ingredient.Count == 0)
@@ -34,21 +41,23 @@ namespace WebApplication2
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Return Recipe according to id. RecipeIngredient table is included.
+        /// </summary>
+        /// <param name="id">id of recipe to find</param>
         public async Task<Recipe> GetRecipeWithIdAsync(int? id)
         {
             return await _context.Set<Recipe>()
                 .Include(r => r.RecipeIngredients)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
-
-        private Ingredient FindIngredient(IngredientWithCount ingredient)
-        {
-            return _context.Set<Ingredient>()
-                       .FirstOrDefault(i => i.Name == ingredient.Name && i.Unit == ingredient.Unit)
-                   ?? new Ingredient {Name = ingredient.Name, Unit = ingredient.Unit};
-        }
-
-        public async Task RemoveRecipeWithId(int? id)
+        
+        /// <summary>
+        /// Remove recipe according to id
+        /// If recipe with such id does not exists, nothing happens
+        /// </summary>
+        /// <param name="id">id of recipe to remove</param>
+        public async Task RemoveRecipeWithIdAsync(int? id)
         {
             var recipe = await _context.Set<Recipe>().FindAsync(id);
 
@@ -59,13 +68,21 @@ namespace WebApplication2
             }
         }
 
+        /// <summary>
+        /// Remove ingredient for recipe
+        /// </summary>
+        /// <param name="recipeIngredient">recipe ingredient record to remove</param>
         public async Task RemoveRecipeIngredientAsync(RecipeIngredient recipeIngredient)
         {
             _context.Set<RecipeIngredient>().Remove(recipeIngredient);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<IngredientWithCount>> GetRecipeIngredientsWithCount(int? id)
+        /// <summary>
+        /// Find ingredients for recipe with specified id including count
+        /// </summary>
+        /// <param name="id">id of ingredient to find</param>
+        public List<IngredientWithCount> GetRecipeIngredientsWithCount(int? id)
         {
             return _context.Set<RecipeIngredient>()
                 .Where(ri => ri.RecipeId == id)
@@ -74,37 +91,54 @@ namespace WebApplication2
                 .ToList();
         }
 
+        ///<summary>
+        /// Return all ingredients in database
+        /// </summary>
         public async Task<List<Ingredient>> GetAllIngredientsAsync()
         {
             return await _context.Set<Ingredient>().ToListAsync();
         }
 
+        /// <summary>
+        /// Return all recipes in database
+        /// </summary>
         public async Task<List<Recipe>> GetAllRecipesAsync()
         {
             return await _context.Set<Recipe>().ToListAsync();
         }
 
+         /// <summary>
+         /// Return all RecipeIngredient in database
+         /// </summary>
         public async Task<List<RecipeIngredient>> GetAllRecipeIngredientAsync()
         {
             return await _context.Set<RecipeIngredient>().ToListAsync();
         }
 
-        public async Task<List<Ingredient>> GetAllIngredientsAsNoTrackingAsync()
-        {
-            return await _context.Set<Ingredient>().AsNoTracking().ToListAsync();
-        }
-
+        /// <summary>
+        /// Checks whether recipe with specified id exists in database 
+        /// </summary>
+        /// <param name="id">id of recipe to check</param>
         public bool RecipeExists(int id)
         {
             return _context.Set<Recipe>().Any(e => e.Id == id);
         }
 
+        /// <summary>
+        /// Change Recipe state in database
+        /// </summary>
+        /// <param name="recipe">recipe which state is changing</param>
+        /// <param name="state">new state of recipe</param>
         public async Task ChangeRecipeStateAsync(Recipe recipe, EntityState state)
         {
             _context.Attach(recipe).State = state;
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        ///Return all RecipeIngredient-s in recipe specified by id
+        /// </summary>
+        /// <param name="id">id of recipe</param>
         public async Task<List<RecipeIngredient>> GetRecipeIngredientInRecipeAsync(int id)
         {
             return await _context.Set<RecipeIngredient>()
@@ -113,16 +147,24 @@ namespace WebApplication2
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Update RecipeIngredient specified by id
+        /// </summary>
+        /// <param name="ingredient">ingredient which is updated</param>
         public void UpdateRecipeIngredientAsync(RecipeIngredient ingredient)
         {
             _context.Set<RecipeIngredient>().Update(ingredient);
             _context.SaveChanges();
         }
 
+        /// <summary>
+        /// Get all ingredients in recipe specified by id
+        /// </summary>
+        /// <param name="id">id of recipe</param>
         public async Task<List<IngredientWithCount>> GetIngredientsInRecipeWithCount(int id)
         {
             var ingredientsInRecipe = await GetRecipeIngredientInRecipeAsync(id);
-            var ingredients = await GetAllIngredientsAsNoTrackingAsync();
+            var ingredients = await _context.Set<Ingredient>().AsNoTracking().ToListAsync();
 
             return ingredientsInRecipe
                 .Join(ingredients, ri => ri.IngredientId, i => i.Id, (ri, i) =>
@@ -134,6 +176,13 @@ namespace WebApplication2
                         Unit = i.Unit
                     })
                 .ToList();
+        }
+
+        private Ingredient FindIngredient(IngredientWithCount ingredient)
+        {
+            return _context.Set<Ingredient>()
+                       .FirstOrDefault(i => i.Name == ingredient.Name && i.Unit == ingredient.Unit)
+                   ?? new Ingredient {Name = ingredient.Name, Unit = ingredient.Unit};
         }
     }
 }
