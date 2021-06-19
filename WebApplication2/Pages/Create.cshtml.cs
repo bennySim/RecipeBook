@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -45,6 +46,12 @@ namespace WebApplication2.Pages.RecipePages
             return Page();
         }
 
+        public async Task<FileResult> OnGetSaveSchema(int id)
+        {
+            var schemaContent = Encoding.UTF8.GetBytes(await System.IO.File.ReadAllTextAsync(Config.SchemaPath));
+            return File(schemaContent, "application/xml", "recipeSchema.xsd");
+        } 
+        
         public async Task<IActionResult> OnPostParseXML()
         {
             var isValid = ValidateFile(out var doc);
@@ -63,7 +70,7 @@ namespace WebApplication2.Pages.RecipePages
         private bool ValidateFile(out XDocument doc)
         {
             var schema = new XmlSchemaSet();
-            schema.Add("", "./Pages/Shared/recipeScheme.xsd");
+            schema.Add("", Config.SchemaPath);
             var reader = XmlReader.Create(UploadFileName.OpenReadStream());
 
             doc = XDocument.Load(reader);
