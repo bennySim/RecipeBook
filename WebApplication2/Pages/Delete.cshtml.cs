@@ -39,7 +39,7 @@ namespace WebApplication2.Pages.RecipePages
                 return NotFound();
             }
 
-            await _databaseManipulation.RemoveRecipeWithId(id);
+            await _databaseManipulation.RemoveRecipeWithIdAsync(id);
 
             return RedirectToPage("./Index");
         }
