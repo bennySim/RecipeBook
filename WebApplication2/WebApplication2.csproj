@@ -47,5 +47,11 @@
       <UpToDateCheckInput Remove="Pages\RecipePages\Edit.cshtml" />
       <UpToDateCheckInput Remove="Pages\RecipePages\Index.cshtml" />
     </ItemGroup>
+    
+     <ItemGroup>
+    <None Update="RecipeBooks.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

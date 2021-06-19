@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +23,7 @@ namespace WebApplication2
             services.AddServerSideBlazor();
             services.AddDbContext<RecipesContext>(
                 options => options
-                    .UseSqlite(@"Data source=/home/simona/RiderProjects/WebApplication2/WebApplication2/RecipeBook.db"));
-
+                    .UseSqlite("Data source=" + Config.DatabasePath));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
