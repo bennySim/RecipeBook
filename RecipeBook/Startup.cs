@@ -1,3 +1,4 @@
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +22,10 @@ namespace WebApplication2
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            var connectionString = Configuration.GetConnectionString("RecipeDB").Replace("{AppDir}", Directory.GetCurrentDirectory());
             services.AddDbContext<RecipesContext>(
                 options => options
-                    .UseSqlite("Data source=" + Config.DatabasePath));
+                    .UseSqlite(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

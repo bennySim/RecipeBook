@@ -15,9 +15,6 @@ namespace WebApplication2
             Database.EnsureCreated();
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite("Data Source=" + Config.DatabasePath);
-
         public System.Data.Entity.DbSet<Recipe> Recipes { get; set; }
         public System.Data.Entity.DbSet<RecipeIngredient> RecipeIngredients { get; set; }
         public System.Data.Entity.DbSet<Ingredient> Ingredients { get; set; }
