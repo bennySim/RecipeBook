@@ -20,7 +20,7 @@
 <h4>Import recipe from file:</h4>
 <form asp-page-handler="parseXml" method="post" enctype="multipart/form-data">
     <input type="file" asp-for="UploadFileName"/>
-    <input type="submit"/>
+    <input type="submit" value="Submit"/>
     <a asp-page="./Create" asp-page-handler="SaveSchema">Download Schema</a>
 </form>
 <p>@ViewData["Validation"]</p>
