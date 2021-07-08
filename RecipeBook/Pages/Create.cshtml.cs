@@ -22,15 +22,29 @@ namespace WebApplication2.Pages.RecipePages
             _databaseManipulation = new DatabaseManipulation(context);
         }
 
-        [BindProperty] public Recipe Recipe { get; set; }
+        [BindProperty] 
+        public Recipe Recipe { get; set; }
 
-        [BindProperty] public IFormFile UploadFileName { get; set; }
+        [BindProperty] 
+        public IFormFile UploadFileName { get; set; }
 
-        [BindProperty] public List<IngredientWithCount> Ingredients { get; set; }
+        [BindProperty] 
+        public List<IngredientWithCount> Ingredients { get; set; }
 
         private string _validationResult;
 
-        public async Task<IActionResult> OnPostAsync()
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+
+        public async Task<FileResult> OnGetSaveSchema(int id)
+        {
+            var schemaContent = Encoding.UTF8.GetBytes(await System.IO.File.ReadAllTextAsync(SchemaPath));
+            return File(schemaContent, "application/xml", "recipeSchema.xsd");
+        }
+
+        public async Task<IActionResult> OnPostFromFormular()
         {
             if (!ModelState.IsValid)
             {
@@ -42,21 +56,9 @@ namespace WebApplication2.Pages.RecipePages
             return RedirectToPage("./Index");
         }
 
-        public IActionResult OnGet()
-        {
-            return Page();
-        }
-
-        public async Task<FileResult> OnGetSaveSchema(int id)
-        {
-            var schemaContent = Encoding.UTF8.GetBytes(await System.IO.File.ReadAllTextAsync(SchemaPath));
-            return File(schemaContent, "application/xml", "recipeSchema.xsd");
-        } 
-        
         public async Task<IActionResult> OnPostParseXML()
         {
-            var isValid = ValidateFile(out var doc);
-            if (!isValid)
+            if (!IsValid(out var doc))
             {
                 Recipe = new Recipe();
                 Ingredients = new List<IngredientWithCount> {new()};
@@ -68,10 +70,11 @@ namespace WebApplication2.Pages.RecipePages
             return RedirectToPage("./Index");
         }
 
-        private bool ValidateFile(out XDocument doc)
+        private bool IsValid(out XDocument doc)
         {
             var schema = new XmlSchemaSet();
             schema.Add("", SchemaPath);
+            
             var reader = XmlReader.Create(UploadFileName.OpenReadStream());
 
             doc = XDocument.Load(reader);
@@ -140,9 +143,9 @@ namespace WebApplication2.Pages.RecipePages
 
         private async Task AddRecipeToDatabase(Recipe recipe, List<IngredientWithCount> ingredients)
         {
-            foreach (var i in ingredients)
+            foreach (var ingredient in ingredients)
             {
-                await _databaseManipulation.AddIngredientAsync(i, recipe);
+                await _databaseManipulation.AddIngredientAsync(ingredient, recipe);
             }
         }
     }
