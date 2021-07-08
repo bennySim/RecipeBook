@@ -14,6 +14,7 @@ namespace WebApplication2.Pages.RecipePages
 {
     public class CreateModel : PageModel
     {
+        private const string SchemaPath = "./Pages/Shared/recipeScheme.xsd";
         private readonly DatabaseManipulation _databaseManipulation;
 
         public CreateModel(RecipesContext context)
@@ -48,7 +49,7 @@ namespace WebApplication2.Pages.RecipePages
 
         public async Task<FileResult> OnGetSaveSchema(int id)
         {
-            var schemaContent = Encoding.UTF8.GetBytes(await System.IO.File.ReadAllTextAsync(Config.SchemaPath));
+            var schemaContent = Encoding.UTF8.GetBytes(await System.IO.File.ReadAllTextAsync(SchemaPath));
             return File(schemaContent, "application/xml", "recipeSchema.xsd");
         } 
         
@@ -70,7 +71,7 @@ namespace WebApplication2.Pages.RecipePages
         private bool ValidateFile(out XDocument doc)
         {
             var schema = new XmlSchemaSet();
-            schema.Add("", Config.SchemaPath);
+            schema.Add("", SchemaPath);
             var reader = XmlReader.Create(UploadFileName.OpenReadStream());
 
             doc = XDocument.Load(reader);
