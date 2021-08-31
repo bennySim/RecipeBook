@@ -13,8 +13,6 @@ XML format using button at the bottom of the page.
 ![image info](./images/pancakes.png)
 ### Edit
 ![image info](./images/edit_page.png)
-### Delete
 ### Add new recipe
+You can add new recipes using the form or by importing an .xml file. Only files that are valid according to the scheme are accepted.
 ![image info](./images/create_recipe.png)
-#### using form
-#### importing from XML
